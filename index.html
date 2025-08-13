@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurangzeb Quiz Application</title>
+    <style>
+        /* General Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        /* First Page Styles */
+        #startPage {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+      .box {
+    background: linear-gradient(45deg, rgb(218, 0, 171), rgb(0, 255, 191), rgb(255, 221, 0), rgb(218, 0, 171));
+    background-size: 400% 400%;
+    padding: 8px 50px;
+    font-size: 2.1rem;
+    font-weight: 700;
+    font-family: 'Tangerine', cursive;
+    color: black;
+    box-shadow: 0 0 50px rgb(0, 255, 191);
+    outline: 4px solid black;
+    outline-offset: 5px;
+    cursor: pointer;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: gradientFlow 5s ease infinite, pulse 1s infinite;
+    transition: background 0.5s ease, box-shadow 0.3s ease;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.box:hover {
+    background: linear-gradient(45deg, rgb(0, 255, 255), rgb(255, 0, 255), rgb(255, 255, 0), rgb(0, 255, 255));
+    background-size: 400% 400%;
+    box-shadow: 0 0 50px rgb(255, 0, 255);
+}
+
+        .box:hover {
+            background-color: rgb(56, 255, 242);
+            box-shadow: 0 0 80px yellow;
+            outline-color: rgb(0, 255, 102);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 50px rgb(0, 255, 0); }
+            50% { box-shadow: 0 0 100px rgb(255, 0, 0); }
+            100% { box-shadow: 0 0 50px rgb(104, 61, 82); }
+        }
+
+        .loading-text {
+            position: relative;
+            font-family: 'Allura', cursive;
+            background: linear-gradient(90deg, rgb(255, 0, 0), #0ff, #00f) -1810% / 114%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font: 900 clamp(2em, 6vw, 4em) 'Allura', cursive;
+            animation: shimmer 2s linear infinite, glitch 2s infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 100%; }
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: none; opacity: 1; }
+            92% { transform: translateX(-1px) skew(0deg); opacity: 0.9; }
+            94% { transform: translateX(2px) skew(-2deg); opacity: 1; }
+            96% { transform: translateX(-1px) skew(1deg); opacity: 0.95; }
+            98% { transform: translateX(1px) skew(-1deg); opacity: 1; }
+        }
+
+        /* Quiz Page Styles */
+        #quizPage {
+            background: linear-gradient(135deg, #452c4753, #13a155);
+            color: #000000;
+            position: relative;
+            min-height: 100vh;
+            display: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+       .card {
+    background: linear-gradient(135deg, #91b9d8, #83b1a8, #b8afed);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgb(183, 56, 56);
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: transform 0.2s;
+}
+
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question .en {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #000000;
+            margin-top: 5px;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #000;
+            border-radius: 8px;
+            background: #9cb7cf;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.4s ease, transform 0.1s, border-color 0.4s ease, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            color: #000;
+        }
+
+        .options button:hover {
+            background: #f4ff1f;
+            border-color: #9d00ff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .options button.correct {
+            background: #6cff5e !important;
+            border-color: #ae00ff !important;
+            cursor: default;
+            color: #000 !important;
+             font-weight: bold;
+        }
+
+        .options button.wrong {
+            background: #b51010 !important;
+            border-color: #000 !important;
+            cursor: default;
+            color: #000 !important;
+        }
+
+        .options button.disabled {
+            pointer-events: none;
+            color: #000;
+        }
+
+        .options button::after {
+            content: '';
+            position: absolute;
+            background: rgb(212, 51, 51);
+            border-radius: 50%;
+            width: 0;
+            height: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .options button:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            transition: transform 0.3s ease, box-shadow 0.5s ease;
+            color: #000;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        @keyframes flowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #89b2f4;
+            border-left: 4px solid #000000;
+            font-size: 0.95rem;
+            animation: slideDown 0.4s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+            font-weight: bold;
+        }
+
+        .explanation.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress {
+            height: 8px;
+            background: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #18ff03d6, #ff2802);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3e5a52;
+            position: absolute;
+            top: -16px;
+            right: -20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.8rem;
+            transform: scale(0);
+            animation: grow 0.5s ease forwards;
+        }
+
+        @keyframes grow {
+            to { transform: scale(1); }
+        }
+
+        #timerContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: #000;
+            z-index: 9999;
+            user-select: none;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        #timerContainer.hidden {
+            visibility: hidden;
+        }
+
+        #timerBar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        #timerBarFill {
+            height: 100%;
+            background: #ff4444;
+            width: 100%;
+            transition: width 1s linear, background 1s ease;
+        }
+
+        /* Dashboard Page Styles */
+        #dashboardPage {
+            background: linear-gradient(45deg, #a1c4fd, #c2e9fb, #d4fc79);
+            background-size: 600% 400%;
+            animation: flow 5s ease-in-out infinite;
+            padding: 40px;
+            display: none;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUpContainer 1.2s ease-in-out;
+        }
+
+        @keyframes slideUpContainer {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .dashboard-container h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: bounceIn 1s ease-in-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .dash-box {
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+            background-size: 800% 600%;
+            animation: waveFlow 6s ease-in-out infinite, floatUpDown 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes waveFlow {
+            0% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+            25% { background-position: 50% 55%; filter: brightness(1.3) saturate(1.3); }
+            50% { background-position: 100% 50%; filter: brightness(1.5) saturate(1.4); }
+            75% { background-position: 50% 45%; filter: brightness(1.3) saturate(1.2); }
+            100% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+        }
+
+        .dash-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(-45deg, rgba(112, 201, 239, 0.15), rgba(109, 184, 121, 0.181), rgb(0, 0, 0));
+            animation: waveLine 6s ease-in-out infinite;
+            transform: rotate(45deg);
+            z-index: 0;
+            filter: drop-shadow(0 0 6px rgba(35, 218, 185, 0.6));
+        }
+
+        @keyframes waveLine {
+            0% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+            25% { transform: rotate(45deg) translateX(60%) scale(1); opacity: 0.65; }
+            50% { transform: rotate(45deg) translateX(-60%) scale(1.25); opacity: 1; }
+            75% { transform: rotate(25deg) translateX(30%) scale(1); opacity: 0.7; }
+            100% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+        }
+
+        .dash-box h4, .dash-box p {
+            position: relative;
+            z-index: 1;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .dash-box:nth-child(1) { background: linear-gradient(45deg, #ff6b6b, #ff9f43, #feca57); animation-delay: 0s; }
+        .dash-box:nth-child(2) { background: linear-gradient(45deg, #1dd1a1, #00d2d3, #54a0ff); animation-delay: 0.2s; }
+        .dash-box:nth-child(3) { background: linear-gradient(45deg, #ff4d4d, #ff793f, #ffcc99); animation-delay: 0.4s; }
+        .dash-box:nth-child(4) { background: linear-gradient(45deg, #40f752, #706fd3, #9980fa); animation-delay: 0.6s; }
+        .dash-box:nth-child(5) { background: linear-gradient(45deg, #ff9ff3, #feca57, #1dd1a1); animation-delay: 0.8s; }
+        .dash-box:nth-child(6) { background: linear-gradient(45deg, #54a0ff, #00d2d3, #ff6b6b); animation-delay: 1s; }
+        .dash-box:nth-child(7) { background: linear-gradient(45deg, #ffcc99, #ff4d4d, #9980fa); animation-delay: 1.2s; }
+        .dash-box:nth-child(8) { background: linear-gradient(45deg, #706fd3, #ff9ff3, #ff793f); animation-delay: 1.4s; }
+        .dash-box:nth-child(9) { background: linear-gradient(45deg, #feca57, #4834d4, #54a0ff); animation-delay: 1.6s; }
+        .dash-box:nth-child(10) { background: linear-gradient(45deg, #00d2d3, #ff6b6b, #ffcc99); animation-delay: 1.8s; }
+        .dash-box:nth-child(11) { background: linear-gradient(45deg, #ff793f, #1dd1a1, #706fd3); animation-delay: 2s; }
+        .dash-box:nth-child(12) { background: linear-gradient(45deg, #9980fa, #ff6b6b, #feca57); animation-delay: 2.2s; }
+        .dash-box:nth-child(13) { background: linear-gradient(45deg, #54a0ff, #ffcc99, #ff4d4d); animation-delay: 2.4s; }
+        .dash-box:nth-child(14) { background: linear-gradient(45deg, #ff9ff3, #00d2d3, #4834d4); animation-delay: 2.6s; }
+        .dash-box:nth-child(15) { background: linear-gradient(45deg, #feca57, #ff793f, #1dd1a1); animation-delay: 2.8s; }
+        .dash-box:nth-child(16) { background: linear-gradient(45deg, #706fd3, #ff6b6b, #54a0ff); animation-delay: 3s; }
+        .dash-box:nth-child(17) { background: linear-gradient(45deg, #ff4d4d, #9980fa, #00d2d3); animation-delay: 3.2s; }
+        .dash-box:nth-child(18) { background: linear-gradient(45deg, #ffcc99, #ff9ff3, #4834d4); animation-delay: 3.4s; }
+        .dash-box:nth-child(19) { background: linear-gradient(45deg, #1dd1a1, #ff793f, #706fd3); animation-delay: 3.6s; }
+        .dash-box:nth-child(20) { background: linear-gradient(45deg, #54a0ff, #feca57, #ff6b6b); animation-delay: 3.8s; }
+        .dash-box:nth-child(21) { background: linear-gradient(45deg, #9980fa, #ff4d4d, #00d2d3); animation-delay: 4s; }
+        .dash-box:nth-child(22) { background: linear-gradient(45deg, #ff9ff3, #ffcc99, #ff793f); animation-delay: 4.2s; }
+        .dash-box:nth-child(23) { background: linear-gradient(45deg, #4834d4, #1dd1a1, #54a0ff); animation-delay: 4.4s; }
+        .dash-box:nth-child(24) { background: linear-gradient(45deg, #ff6b6b, #706fd3, #ff4d4d); animation-delay: 4.6s; }
+        .dash-box:nth-child(25) { background: linear-gradient(45deg, #00d2d3, #ff9ff3, #feca57); animation-delay: 4.8s; }
+        .dash-box:nth-child(26) { background: linear-gradient(45deg, #ffcc99, #54a0ff, #9980fa); animation-delay: 5s; }
+        .dash-box:nth-child(27) { background: linear-gradient(45deg, #ff793f, #ff6b6b, #1dd1a1); animation-delay: 5.2s; }
+        .dash-box:nth-child(28) { background: linear-gradient(45deg, #706fd3, #ff4d4d, #00d2d3); animation-delay: 5.4s; }
+        .dash-box:nth-child(29) { background: linear-gradient(45deg, #feca57, #9980fa, #ff9ff3); animation-delay: 5.6s; }
+        .dash-box:nth-child(30) { background: linear-gradient(45deg, #54a0ff, #ff793f, #ff6b6b); animation-delay: 5.8s; }
+
+        .dash-box:hover {
+            transform: scale(1.15) translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.3);
+        }
+
+        .dash-box h4 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dash-box p {
+            font-size: 28px;
+            margin: 12px 0 0;
+        }
+
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            color: #000;
+        }
+
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        #restartModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid black;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container, .dashboard-container {
+                padding: 20px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+            .dash-box p {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Page -->
+    <div id="startPage">
+        <div class="box" onclick="goToQuizPage()">Start</div>
+        <div class="loading-text">Lucky</div>
+    </div>
+
+    <!-- Quiz Page -->
+    <div id="quizPage">
+        <div id="timerContainer">
+            <div>Total Time: <span id="totalTime">00:00</span></div>
+            <div id="timerBar"><div id="timerBarFill"></div></div>
+        </div>
+        <div class="container" id="quizContainer">
+            <h1>economy Lec 7  </h1>
+            <div id="score"></div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-circle" id="progressCircle">0%</div>
+            </div>
+            <div id="quiz"></div>
+            <div class="controls">
+                <button class="submit" onclick="submitQuiz()">Submit</button>
+                <button class="restart" onclick="openRestartModal()">Restart</button>
+                <button class="dashboard" onclick="goToDashboard()">Show Dashboard</button>
+            </div>
+            <select id="languageToggle" onchange="toggleLanguage()">
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+                <option value="both">Both</option>
+            </select>
+            <div id="restartModal">
+                <h2>Select Questions to Restart</h2>
+                <div id="questionCheckboxes"></div>
+                <button onclick="applyRestart()">Apply</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage">
+        <div class="dashboard-container">
+            <h2>🎓 Quiz Result Dashboard</h2>
+            <div class="grid" id="dashboardGrid"></div>
+            <button class="back-button" onclick="goToQuizPage()">Back to Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+    {
+        "q": "मुद्रा आपूर्ति का मापन RBI द्वारा कब शुरू किया गया था?",
+        "q_en": "When did RBI start measuring money supply?",
+        "options": ["1967", "1977", "1968", "1935"],
+        "options_en": ["1967", "1977", "1968", "1935"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, RBI ने 1967 तक मुद्रा मापक के रूप में 'M' का प्रयोग किया था।",
+        "explanation_en": "According to the notes, RBI used 'M' as a money supply measure until 1967."
+    },
+    {
+        "q": "M1 में क्या शामिल होता है?",
+        "q_en": "What is included in M1?",
+        "options": ["जनता के पास मुद्रा + बैंकों के पास लोगों की मांग जमाएं + RBI की अन्य जमाएं", "जनता के पास मुद्रा + समय जमा", "डाकघर बचत जमाएं", "केवल नोट और सिक्के"],
+        "options_en": ["Currency with the public + Demand deposits with banks + Other deposits with RBI", "Currency with the public + Time deposits", "Post office savings deposits", "Only notes and coins"],
+        "answer": 0,
+        "explanation": "नोट्स में M1 की परिभाषा दी गई है: M1 = जनता के पास मुद्रा + बैंकों के पास लोगों की मांग जमाएं + RBI की अन्य जमाएं।",
+        "explanation_en": "The notes define M1 as: M1 = Currency with the public + Demand deposits with banks + Other deposits with RBI."
+    },
+    {
+        "q": "RBI की स्थापना कब हुई थी?",
+        "q_en": "When was the RBI established?",
+        "options": ["1 अप्रैल 1935", "1 जनवरी 1949", "27 जनवरी 1921", "16 जनवरी 1978"],
+        "options_en": ["1 April 1935", "1 January 1949", "27 January 1921", "16 January 1978"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, RBI की स्थापना 1 अप्रैल 1935 को हुई थी।",
+        "explanation_en": "According to the notes, RBI was established on 1 April 1935."
+    },
+    {
+        "q": "RBI अधिनियम 1934 की धारा 22 क्या प्रदान करती है?",
+        "q_en": "What does Section 22 of the RBI Act 1934 provide?",
+        "options": ["नर छापने का अधिकार", "नोट की डिज़ाइन", "बैंकों की जमा राशि", "तरलता मापन"],
+        "options_en": ["Right to print notes", "Design of notes", "Bank deposits", "Liquidity measurement"],
+        "answer": 0,
+        "explanation": "नोट्स में स्पष्ट है कि धारा 22 RBI को नोट छापने का अधिकार देती है।",
+        "explanation_en": "The notes clarify that Section 22 grants RBI the right to print notes."
+    },
+    {
+        "q": "M0 को क्या कहा जाता है?",
+        "q_en": "What is M0 also called?",
+        "options": ["संकीर्ण मुद्रा", "आधार मुद्रा", "व्यापक मुद्रा", "तरल मुद्रा"],
+        "options_en": ["Narrow money", "Base money", "Broad money", "Liquid money"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को आधार मुद्रा (Base Money), प्राथमिक मुद्रा, और उच्च शक्ति प्राप्त मुद्रा कहा गया है।",
+        "explanation_en": "The notes refer to M0 as Base Money, Primary Money, and High Powered Money."
+    },
+    {
+        "q": "RBI का राष्ट्रीयकरण कब हुआ था?",
+        "q_en": "When was RBI nationalized?",
+        "options": ["1 अप्रैल 1935", "1 जनवरी 1949", "27 जनवरी 1921", "8 नवंबर 2016"],
+        "options_en": ["1 April 1935", "1 January 1949", "27 January 1921", "8 November 2016"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, RBI का राष्ट्रीयकरण 1 जनवरी 1949 को हुआ था।",
+        "explanation_en": "According to the notes, RBI was nationalized on 1 January 1949."
+    },
+    {
+        "q": "डाकघर किस मंत्रालय के अधीन आता है?",
+        "q_en": "Which ministry does the Post Office come under?",
+        "options": ["वित्त मंत्रालय", "सूचना एवं प्रसारण मंत्रालय", "डाक मंत्रालय", "गृह मंत्रालय"],
+        "options_en": ["Ministry of Finance", "Ministry of Information and Broadcasting", "Ministry of Communications", "Ministry of Home Affairs"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि डाकघर भारत सरकार के सूचना एवं प्रसारण मंत्रालय के अधीन है।",
+        "explanation_en": "The notes state that the Post Office is under the Ministry of Information and Broadcasting of the Government of India."
+    },
+    {
+        "q": "1000 और 10,000 रुपये के नोट पहली बार कब वापस लिए गए थे?",
+        "q_en": "When were the 1000 and 10,000 rupee notes first withdrawn?",
+        "options": ["जनवरी 1946", "16 जनवरी 1978", "8 नवंबर 2016", "1954"],
+        "options_en": ["January 1946", "16 January 1978", "8 November 2016", "1954"],
+        "answer": 0,
+        "explanation": "नोट्स में उल्लेख है कि जनवरी 1946 में 1000 और 10,000 रुपये के नोट वापस लिए गए थे।",
+        "explanation_en": "The notes mention that the 1000 and 10,000 rupee notes were withdrawn in January 1946."
+    },
+    {
+        "q": "इंपीरियल बैंक ऑफ इंडिया की स्थापना कब हुई थी?",
+        "q_en": "When was the Imperial Bank of India established?",
+        "options": ["27 जनवरी 1921", "1 अप्रैल 1935", "1 जनवरी 1949", "2 जून 1806"],
+        "options_en": ["27 January 1921", "1 April 1935", "1 January 1949", "2 June 1806"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, इंपीरियल बैंक ऑफ इंडिया की स्थापना 27 जनवरी 1921 को हुई थी।",
+        "explanation_en": "According to the notes, the Imperial Bank of India was established on 27 January 1921."
+    },
+    {
+        "q": "RBI के पहले गवर्नर कौन थे?",
+        "q_en": "Who was the first Governor of RBI?",
+        "options": ["सी.डी. देशमुख", "सर ऑसबोर्न स्मिथ", "सर जेम्स टेलर", "जे.एम. कीन्स"],
+        "options_en": ["C.D. Deshmukh", "Sir Osborne Smith", "Sir James Taylor", "J.M. Keynes"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि सर ऑसबोर्न स्मिथ RBI के पहले गवर्नर थे (1935-37)।",
+        "explanation_en": "The notes mention that Sir Osborne Smith was the first Governor of RBI (1935-37)."
+    },
+    {
+        "q": "हिल्टन यंग आयोग की स्थापना कब हुई थी?",
+        "q_en": "When was the Hilton Young Commission established?",
+        "options": ["1926", "1914", "1934", "1949"],
+        "options_en": ["1926", "1914", "1934", "1949"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि हिल्टन यंग आयोग की स्थापना 1926 में हुई थी।",
+        "explanation_en": "The notes state that the Hilton Young Commission was established in 1926."
+    },
+    {
+        "q": "M4 में क्या शामिल नहीं है?",
+        "q_en": "What is not included in M4?",
+        "options": ["डाकघर जमा", "राष्ट्रीय बचत पत्र (NSC)", "समय जमा", "मांग जमा"],
+        "options_en": ["Post office deposits", "National Savings Certificate (NSC)", "Time deposits", "Demand deposits"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M4 = M3 + डाकघर जमा (राष्ट्रीय बचत पत्र को छोड़कर)।",
+        "explanation_en": "According to the notes, M4 = M3 + Post office deposits (excluding National Savings Certificate)."
+    },
+    {
+        "q": "RBI अधिनियम 1934 की धारा 25 क्या निर्धारित करती है?",
+        "q_en": "What does Section 25 of the RBI Act 1934 specify?",
+        "options": ["नोट छापने का अधिकार", "नोट की डिज़ाइन और कागज", "बैंकों की जमा राशि", "मुद्रा आपूर्ति मापन"],
+        "options_en": ["Right to print notes", "Design and paper of notes", "Bank deposits", "Money supply measurement"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि धारा 25 नोट की डिज़ाइन और कागज को निर्धारित करती है।",
+        "explanation_en": "The notes mention that Section 25 specifies the design and paper of notes."
+    },
+    {
+        "q": "भारत में तीसरा और अंतिम विमुद्रीकरण कब हुआ था?",
+        "q_en": "When did the third and final demonetization occur in India?",
+        "options": ["जनवरी 1946", "16 जनवरी 1978", "8 नवंबर 2016", "1954"],
+        "options_en": ["January 1946", "16 January 1978", "8 November 2016", "1954"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, तीसरा और अंतिम विमुद्रीकरण 8 नवंबर 2016 को हुआ था।",
+        "explanation_en": "According to the notes, the third and final demonetization occurred on 8 November 2016."
+    },
+    {
+        "q": "M3 को RBI द्वारा क्या कहा जाता है?",
+        "q_en": "What is M3 called by RBI?",
+        "options": ["संकीर्ण मुद्रा", "आधार मुद्रा", "व्यापक मुद्रा", "प्राथमिक मुद्रा"],
+        "options_en": ["Narrow money", "Base money", "Broad money", "Primary money"],
+        "answer": 2,
+        "explanation": "नोट्स में स्पष्ट है कि RBI ने M3 को व्यापक मुद्रा कहा है।",
+        "explanation_en": "The notes clarify that RBI refers to M3 as Broad Money."
+    },
+    {
+        "q": "राष्ट्रीय बचत पत्र (NSC) पर प्राप्त ब्याज पर क्या छूट है?",
+        "q_en": "What exemption is available on the interest earned on National Savings Certificate?",
+        "options": ["पूर्ण आयकर छूट", "आंशिक आयकर छूट", "कोई छूट नहीं", "केवल उच्च आय वर्ग के लिए छूट"],
+        "options_en": ["Full income tax exemption", "Partial income tax exemption", "No exemption", "Exemption only for high-income groups"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि राष्ट्रीय बचत पत्र पर प्राप्त ब्याज आयकर से पूर्णतया मुक्त होता है।",
+        "explanation_en": "The notes state that the interest earned on National Savings Certificate is fully exempt from income tax."
+    },
+    {
+        "q": "बैंक ऑफ बंगाल की स्थापना कब हुई थी?",
+        "q_en": "When was the Bank of Bengal established?",
+        "options": ["2 जून 1806", "15 अप्रैल 1840", "1 जुलाई 1843", "27 जनवरी 1921"],
+        "options_en": ["2 June 1806", "15 April 1840", "1 July 1843", "27 January 1921"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, बैंक ऑफ बंगाल की स्थापना 2 जून 1806 को हुई थी।",
+        "explanation_en": "According to the notes, the Bank of Bengal was established on 2 June 1806."
+    },
+    {
+        "q": "RBI का मुख्यालय शुरू में कहाँ था?",
+        "q_en": "Where was the headquarters of RBI initially located?",
+        "options": ["मुंबई", "कोलकाता", "दिल्ली", "चेन्नई"],
+        "options_en": ["Mumbai", "Kolkata", "Delhi", "Chennai"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि RBI की स्थापना के समय इसका मुख्यालय कोलकाता में था।",
+        "explanation_en": "The notes mention that at the time of its establishment, RBI’s headquarters was in Kolkata."
+    },
+    {
+        "q": "इलाहाबाद बैंक की स्थापना कब हुई थी?",
+        "q_en": "When was Allahabad Bank established?",
+        "options": ["1865", "1894", "1908", "1913"],
+        "options_en": ["1865", "1894", "1908", "1913"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, इलाहाबाद बैंक की स्थापना 1865 में हुई थी।",
+        "explanation_en": "According to the notes, Allahabad Bank was established in 1865."
+    },
+    {
+        "q": "जे.एम. कीन्स की पुस्तक 'Indian Currency and Finance' कब प्रकाशित हुई थी?",
+        "q_en": "When was J.M. Keynes’ book 'Indian Currency and Finance' published?",
+        "options": ["12 मई 1913", "1923", "1934", "1926"],
+        "options_en": ["12 May 1913", "1923", "1934", "1926"],
+        "answer": 0,
+        "explanation": "नोट्स में उल्लेख है कि जे.एम. कीन्स की पुस्तक 12 मई 1913 को प्रकाशित हुई थी।",
+        "explanation_en": "The notes mention that J.M. Keynes’ book 'Indian Currency and Finance' was published on 12 May 1913."
+    },
+    {
+        "q": "M1 को RBI द्वारा क्या कहा जाता है, और इसमें क्या शामिल होता है?",
+        "q_en": "What is M1 called by RBI, and what does it include?",
+        "options": ["व्यापक मुद्रा; नोट और सिक्के", "संकीर्ण मुद्रा; जनता के पास मुद्रा + मांग जमाएं + RBI की अन्य जमाएं", "आधार मुद्रा; समय जमा", "तरल मुद्रा; डाकघर जमा"],
+        "options_en": ["Broad money; Notes and coins", "Narrow money; Currency with the public + Demand deposits + Other deposits with RBI", "Base money; Time deposits", "Liquid money; Post office deposits"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M1 को संकीर्ण मुद्रा कहा जाता है, और इसमें जनता के पास मुद्रा, बैंकों की मांग जमाएं, और RBI की अन्य जमाएं शामिल हैं। अन्य विकल्प गलत हैं क्योंकि वे M1 की परिभाषा से मेल नहीं खाते।",
+        "explanation_en": "According to the notes, M1 is called Narrow Money, and it includes currency with the public, demand deposits with banks, and other deposits with RBI. Other options are incorrect as they do not match M1’s definition."
+    },
+    {
+        "q": "M3 और M4 में क्या अंतर है?",
+        "q_en": "What is the difference between M3 and M4?",
+        "options": ["M3 में डाकघर जमा शामिल है, M4 में नहीं", "M4 में डाकघर जमा शामिल है, M3 में नहीं", "M3 में मांग जमा शामिल नहीं है", "M4 में समय जमा शामिल नहीं है"],
+        "options_en": ["M3 includes Post office deposits, M4 does not", "M4 includes Post office deposits, M3 does not", "M3 does not include demand deposits", "M4 does not include time deposits"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M4 = M3 + डाकघर जमा (NSC को छोड़कर), जबकि M3 में केवल समय जमा शामिल है।",
+        "explanation_en": "According to the notes, M4 = M3 + Post office deposits (excluding NSC), while M3 includes only time deposits."
+    },
+    {
+        "q": "कौन सी मुद्रा सबसे अधिक तरल है?",
+        "q_en": "Which money supply measure is the most liquid?",
+        "options": ["M1", "M2", "M3", "M4"],
+        "options_en": ["M1", "M2", "M3", "M4"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि तरलता का क्रम M1 > M2 > M3 > M4 है, इसलिए M1 सबसे अधिक तरल है।",
+        "explanation_en": "The notes state that the liquidity order is M1 > M2 > M3 > M4, so M1 is the most liquid."
+    },
+    {
+        "q": "हॉट मुद्रा की विशेषता क्या है?",
+        "q_en": "What is the characteristic of Hot Currency?",
+        "options": ["यह अंतरराष्ट्रीय बाजार में कम मांग वाली मुद्रा है", "यह शीघ्र स्थानांतरण की प्रवृत्ति रखती है", "यह केवल भारतीय अर्थव्यवस्था में उपयोग होती है", "यह समय जमा का हिस्सा है"],
+        "options_en": ["It is a currency with low demand in the international market", "It has a tendency for rapid transfer", "It is used only in the Indian economy", "It is part of time deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में हॉट मुद्रा को ऐसी विदेशी मुद्रा के रूप में परिभाषित किया गया है जो शीघ्र स्थानांतरण की प्रवृत्ति रखती है, जैसे डॉलर और यूरो।",
+        "explanation_en": "The notes define Hot Currency as a foreign currency with a tendency for rapid transfer, such as dollars and euros."
+    },
+    {
+        "q": "RBI ने 1968 में कौन सा मापक शुरू किया था?",
+        "q_en": "Which measure did RBI introduce in 1968?",
+        "options": ["M1", "AMR", "M3", "M4"],
+        "options_en": ["M1", "AMR", "M3", "M4"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, 1968 में RBI ने 'M' की जगह AMR को शुरू किया था।",
+        "explanation_en": "According to the notes, in 1968, RBI introduced AMR in place of 'M'."
+    },
+    {
+        "q": "भारतीय रुपये को किस प्रकार की मुद्रा माना जाता है?",
+        "q_en": "What type of currency is the Indian Rupee considered?",
+        "options": ["दुलभ मुद्रा", "सुलभ मुद्रा", "हॉट मुद्रा", "आधार मुद्रा"],
+        "options_en": ["Hard currency", "Soft currency", "Hot currency", "Base currency"],
+        "answer": 1,
+        "explanation": "नोट्स में भारतीय रुपये को सुलभ मुद्रा (Soft Currency) कहा गया है, क्योंकि इसकी मांग अंतरराष्ट्रीय बाजार में कम होती है।",
+        "explanation_en": "The notes refer to the Indian Rupee as a Soft Currency because its demand in the international market is low."
+    },
+    {
+        "q": "RBI का मुख्यालय कब मुंबई स्थानांतरित हुआ?",
+        "q_en": "When was RBI’s headquarters shifted to Mumbai?",
+        "options": ["1935", "1937", "1949", "1921"],
+        "options_en": ["1935", "1937", "1949", "1921"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, RBI का मुख्यालय 1937 में कोलकाता से मुंबई स्थानांतरित हुआ।",
+        "explanation_en": "According to the notes, RBI’s headquarters was shifted from Kolkata to Mumbai in 1937."
+    },
+    {
+        "q": "इंपीरियल बैंक ऑफ इंडिया का राष्ट्रीयकरण कब हुआ था?",
+        "q_en": "When was the Imperial Bank of India nationalized?",
+        "options": ["1921", "1935", "1955", "1949"],
+        "options_en": ["1921", "1935", "1955", "1949"],
+        "answer": 2,
+        "explanation": "नोट्स में उल्लेख है कि 1955 में इंपीरियल बैंक का राष्ट्रीयकरण कर इसका नाम भारतीय स्टेट बैंक रखा गया।",
+        "explanation_en": "The notes mention that in 1955, the Imperial Bank was nationalized and renamed the State Bank of India."
+    },
+    {
+        "q": "RBI अधिनियम 1934 की धारा 24 क्या निर्धारित करती है?",
+        "q_en": "What does Section 24 of the RBI Act 1934 specify?",
+        "options": ["नोट की डिज़ाइन", "नोट का मूल्यवर्ग", "नोट छापने का अधिकार", "बैंकों की जमा राशि"],
+        "options_en": ["Design of notes", "Denomination of notes", "Right to print notes", "Bank deposits"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, धारा 24 नोट के मूल्यवर्ग (जैसे 2, 5, 10 रुपये आदि) को निर्धारित करती है।",
+        "explanation_en": "According to the notes, Section 24 specifies the denomination of notes (e.g., 2, 5, 10 rupees, etc.)."
+    },
+    {
+        "q": "M0 में क्या शामिल होता है?",
+        "q_en": "What is included in M0?",
+        "options": ["जनता के पास मुद्रा + समय जमा", "प्रचलन में मुद्रा + RBI के पास बैंकों का जमा + अन्य जमा", "डाकघर जमा + मांग जमा", "केवल राष्ट्रीय बचत पत्र"],
+        "options_en": ["Currency with the public + Time deposits", "Currency in circulation + Bank deposits with RBI + Other deposits", "Post office deposits + Demand deposits", "Only National Savings Certificate"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को प्रचलन में मुद्रा + RBI के पास बैंकों का जमा + अन्य जमा के रूप में परिभाषित किया गया है।",
+        "explanation_en": "The notes define M0 as currency in circulation + bank deposits with RBI + other deposits."
+    },
+    {
+        "q": "किस आयोग ने RBI की स्थापना की सिफारिश की थी?",
+        "q_en": "Which commission recommended the establishment of RBI?",
+        "options": ["चैंबरलेन आयोग", "हिल्टन यंग आयोग", "भारतीय केंद्रीय बैंकिंग जांच समिति", "गोरेवाला समिति"],
+        "options_en": ["Chamberlain Commission", "Hilton Young Commission", "Indian Central Banking Enquiry Committee", "Gorewala Committee"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, हिल्टन यंग आयोग (1926) ने RBI की स्थापना की सिफारिश की थी।",
+        "explanation_en": "According to the notes, the Hilton Young Commission (1926) recommended the establishment of RBI."
+    },
+    {
+        "q": "RBI के गवर्नर का कार्यकाल कितना होता है?",
+        "q_en": "What is the tenure of an RBI Governor?",
+        "options": ["2 वर्ष", "3 वर्ष", "5 वर्ष", "7 वर्ष"],
+        "options_en": ["2 years", "3 years", "5 years", "7 years"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि RBI गवर्नर का कार्यकाल 3 वर्ष होता है।",
+        "explanation_en": "The notes mention that the tenure of an RBI Governor is 3 years."
+    },
+    {
+        "q": "पहला भारतीय स्वामित्व वाला बैंक कौन सा था?",
+        "q_en": "Which was the first Indian-owned bank?",
+        "options": ["बैंक ऑफ हिंदुस्तान", "पंजाब नेशनल बैंक", "इलाहाबाद बैंक", "बैंक ऑफ बड़ौदा"],
+        "options_en": ["Bank of Hindustan", "Punjab National Bank", "Allahabad Bank", "Bank of Baroda"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, 1894 में स्थापित पंजाब नेशनल बैंक पहला भारतीय स्वामित्व वाला बैंक था।",
+        "explanation_en": "According to the notes, Punjab National Bank, established in 1894, was the first Indian-owned bank."
+    },
+    {
+        "q": "किस वर्ष में 2000 रुपये का नोट पहली बार लागू किया गया?",
+        "q_en": "In which year was the 2000 rupee note introduced for the first time?",
+        "options": ["1946", "1978", "2016", "1954"],
+        "options_en": ["1946", "1978", "2016", "1954"],
+        "answer": 2,
+        "explanation": "नोट्स में उल्लेख है कि 8 नवंबर 2016 को 2000 रुपये का नोट पहली बार लागू किया गया।",
+        "explanation_en": "The notes mention that the 2000 rupee note was introduced for the first time on 8 November 2016."
+    },
+    {
+        "q": "M2 में क्या शामिल है?",
+        "q_en": "What is included in M2?",
+        "options": ["M1 + डाकघर बचत जमा", "M1 + समय जमा", "M1 + राष्ट्रीय बचत पत्र", "M3 + डाकघर जमा"],
+        "options_en": ["M1 + Post office savings deposits", "M1 + Time deposits", "M1 + National Savings Certificate", "M3 + Post office deposits"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, M2 = M1 + डाकघर बचत जमा।",
+        "explanation_en": "According to the notes, M2 = M1 + Post office savings deposits."
+    },
+    {
+        "q": "RBI ने बर्मा और पाकिस्तान के लिए कब तक केंद्रीय बैंक के रूप में कार्य किया?",
+        "q_en": "Until when did RBI act as the central bank for Burma and Pakistan?",
+        "options": ["1935", "1949", "1937", "1921"],
+        "options_en": ["1935", "1949", "1937", "1921"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI ने 1949 तक बर्मा और पाकिस्तान के लिए केंद्रीय बैंक के रूप में कार्य किया।",
+        "explanation_en": "The notes state that RBI acted as the central bank for Burma and Pakistan until 1949."
+    },
+    {
+        "q": "किस समिति ने 1998 में मुद्रा आपूर्ति माप की नई अनुशंसाएं की थीं?",
+        "q_en": "Which committee recommended new measures for money supply in 1998?",
+        "options": ["चैंबरलेन आयोग", "हिल्टन यंग आयोग", "डॉ. वाई.वी. रेड्डी समिति", "गोरेवाला समिति"],
+        "options_en": ["Chamberlain Commission", "Hilton Young Commission", "Dr. Y.V. Reddy Committee", "Gorewala Committee"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, 1998 में डॉ. वाई.वी. रेड्डी की अध्यक्षता में गठित समिति ने मुद्रा आपूर्ति माप की नई अनुशंसाएं की थीं।",
+        "explanation_en": "According to the notes, the committee chaired by Dr. Y.V. Reddy in 1998 recommended new measures for money supply."
+    },
+    {
+        "q": "चैंबरलेन आयोग की स्थापना कब हुई थी?",
+        "q_en": "When was the Chamberlain Commission established?",
+        "options": ["1913/14", "1926", "1934", "1949"],
+        "options_en": ["1913/14", "1926", "1934", "1949"],
+        "answer": 0,
+        "explanation": "नोट्स में उल्लेख है कि चैंबरलेन आयोग (भारतीय मुद्रा पर शाही आयोग) 1913/14 में स्थापित हुआ था।",
+        "explanation_en": "The notes mention that the Chamberlain Commission (Royal Commission on Indian Currency) was established in 1913/14."
+    },
+    {
+        "q": "RBI की स्थापना के समय इसकी शुरुआती पूंजी कितनी थी?",
+        "q_en": "What was the initial capital of RBI at the time of its establishment?",
+        "options": ["5 करोड़ रुपये", "2 लाख 22 हजार रुपये", "10 करोड़ रुपये", "1 करोड़ रुपये"],
+        "options_en": ["5 crore rupees", "2.22 lakh rupees", "10 crore rupees", "1 crore rupees"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, RBI की स्थापना 5 करोड़ रुपये की शुरुआती पूंजी के साथ हुई थी।",
+        "explanation_en": "According to the notes, RBI was established with an initial capital of 5 crore rupees."
+    },
+    {
+        "q": "किस वर्ष में जनता पार्टी की गठबंधन सरकार ने 1000, 5000, और 10,000 रुपये के नोटों का विमुद्रीकरण किया?",
+        "q_en": "In which year did the Janata Party coalition government demonetize 1000, 5000, and 10,000 rupee notes?",
+        "options": ["1946", "1978", "2016", "1954"],
+        "options_en": ["1946", "1978", "2016", "1954"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि 16 जनवरी 1978 को जनता पार्टी की सरकार ने 1000, 5000, और 10,000 रुपये के नोटों का विमुद्रीकरण किया।",
+        "explanation_en": "The notes mention that on 16 January 1978, the Janata Party government demonetized 1000, 5000, and 10,000 rupee notes."
+    },
+    {
+        "q": "किस मुद्रा की मांग अंतरराष्ट्रीय बाजार में लगातार अधिक होती है?",
+        "q_en": "Which currency has consistently high demand in the international market?",
+        "options": ["सुलभ मुद्रा", "दुलभ मुद्रा", "हॉट मुद्रा", "आधार मुद्रा"],
+        "options_en": ["Soft currency", "Hard currency", "Hot currency", "Base currency"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, दुलभ मुद्रा (Hard Currency) जैसे अमेरिकी डॉलर और यूरो की मांग अंतरराष्ट्रीय बाजार में लगातार अधिक होती है।",
+        "explanation_en": "According to the notes, Hard Currency such as the US dollar and euro has consistently high demand in the international market."
+    },
+    {
+        "q": "RBI ने 1967-68 तक मुद्रा मापक के रूप में क्या प्रयोग किया?",
+        "q_en": "What did RBI use as a money supply measure until 1967-68?",
+        "options": ["M1", "M3", "M = C + DD + OD", "M4"],
+        "options_en": ["M1", "M3", "M = C + DD + OD", "M4"],
+        "answer": 2,
+        "explanation": "नोट्स में कहा गया है कि 1967-68 तक RBI ने M = C + DD + OD को मुद्रा मापक के रूप में प्रयोग किया।",
+        "explanation_en": "The notes state that until 1967-68, RBI used M = C + DD + OD as a money supply measure."
+    },
+    {
+        "q": "भारतीय केंद्रीय बैंकिंग जांच समिति की स्थापना कब हुई थी?",
+        "q_en": "When was the Indian Central Banking Enquiry Committee established?",
+        "options": ["1921", "1931", "1934", "1949"],
+        "options_en": ["1921", "1931", "1934", "1949"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, भारतीय केंद्रीय बैंकिंग जांच समिति 1931 में स्थापित हुई थी।",
+        "explanation_en": "According to the notes, the Indian Central Banking Enquiry Committee was established in 1931."
+    },
+    {
+        "q": "RBI ने किन देशों के लिए केंद्रीय बैंक के रूप में कार्य किया?",
+        "q_en": "For which countries did RBI act as a central bank?",
+        "options": ["भारत और श्रीलंका", "भारत, बर्मा, और पाकिस्तान", "भारत और बांग्लादेश", "भारत और नेपाल"],
+        "options_en": ["India and Sri Lanka", "India, Burma, and Pakistan", "India and Bangladesh", "India and Nepal"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि RBI ने बर्मा और पाकिस्तान के लिए भी केंद्रीय बैंक के रूप में कार्य किया।",
+        "explanation_en": "The notes mention that RBI also acted as a central bank for Burma and Pakistan."
+    },
+    {
+        "q": "डॉ. बी.आर. अंबेडकर की पुस्तक 'द प्रॉब्लम ऑफ द रुपी' कब प्रकाशित हुई थी?",
+        "q_en": "When was Dr. B.R. Ambedkar’s book 'The Problem of the Rupee' published?",
+        "options": ["1913", "1923", "1934", "1926"],
+        "options_en": ["1913", "1923", "1934", "1926"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, डॉ. बी.आर. अंबेडकर की पुस्तक 1923 में प्रकाशित हुई थी।",
+        "explanation_en": "According to the notes, Dr. B.R. Ambedkar’s book 'The Problem of the Rupee' was published in 1923."
+    },
+    {
+        "q": "M1 और M3 में क्या समान है?",
+        "q_en": "What is common between M1 and M3?",
+        "options": ["दोनों में डाकघर जमा शामिल हैं", "दोनों में जनता के पास मुद्रा और मांग जमा शामिल हैं", "दोनों में समय जमा शामिल नहीं है", "दोनों को आधार मुद्रा कहा जाता है"],
+        "options_en": ["Both include Post office deposits", "Both include currency with the public and demand deposits", "Both do not include time deposits", "Both are called base money"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M1 = C + DD + OD और M3 = C + DD + OD + TD। दोनों में जनता के पास मुद्रा (C) और मांग जमा (DD) शामिल हैं।",
+        "explanation_en": "According to the notes, M1 = C + DD + OD and M3 = C + DD + OD + TD. Both include currency with the public (C) and demand deposits (DD)."
+    },
+    {
+        "q": "M4 में राष्ट्रीय बचत पत्र (NSC) क्यों शामिल नहीं है?",
+        "q_en": "Why is the National Savings Certificate (NSC) not included in M4?",
+        "options": ["क्योंकि यह समय जमा का हिस्सा है", "क्योंकि यह डाकघर जमा का हिस्सा नहीं है", "क्योंकि यह RBI द्वारा नियंत्रित होता है", "क्योंकि यह तरल नहीं है"],
+        "options_en": ["Because it is part of time deposits", "Because it is not part of Post office deposits", "Because it is controlled by RBI", "Because it is not liquid"],
+        "answer": 1,
+        "explanation": "नोट्स में स्पष्ट है कि M4 = M3 + डाकघर जमा (NSC को छोड़कर)। NSC को विशेष रूप से बाहर रखा गया है।",
+        "explanation_en": "The notes clarify that M4 = M3 + Post office deposits (excluding NSC). NSC is specifically excluded."
+    },
+    {
+        "q": "RBI द्वारा मुद्रा आपूर्ति का मापन क्यों किया जाता है?",
+        "q_en": "Why does RBI measure money supply?",
+        "options": ["बैंकों की जमा राशि बढ़ाने के लिए", "अर्थव्यवस्था में मूल्य स्थिरता बनाए रखने के लिए", "डाकघर जमा को नियंत्रित करने के लिए", "नोट की डिज़ाइन बदलने के लिए"],
+        "options_en": ["To increase bank deposits", "To maintain price stability in the economy", "To regulate Post office deposits", "To change the design of notes"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI का प्रमुख उद्देश्य अर्थव्यवस्था में मूल्य स्थिरता बनाए रखना है, जिसके लिए मुद्रा आपूर्ति का मापन किया जाता है।",
+        "explanation_en": "The notes state that RBI’s primary objective is to maintain price stability in the economy, for which money supply is measured."
+    },
+    {
+        "q": "कौन सी मुद्रा सबसे कम तरल है?",
+        "q_en": "Which money supply measure is the least liquid?",
+        "options": ["M1", "M2", "M3", "M4"],
+        "options_en": ["M1", "M2", "M3", "M4"],
+        "answer": 3,
+        "explanation": "नोट्स में तरलता का क्रम M1 > M2 > M3 > M4 दिया गया है, इसलिए M4 सबसे कम तरल है।",
+        "explanation_en": "The notes provide the liquidity order as M1 > M2 > M3 > M4, so M4 is the least liquid."
+    },
+    {
+        "q": "हॉट मुद्रा और दुलभ मुद्रा में क्या अंतर है?",
+        "q_en": "What is the difference between Hot Currency and Hard Currency?",
+        "options": ["हॉट मुद्रा की मांग कम होती है, दुलभ मुद्रा की अधिक", "हॉट मुद्रा शीघ्र स्थानांतरण करती है, दुलभ मुद्रा की मांग अधिक होती है", "दोनों एक ही हैं", "हॉट मुद्रा केवल भारत में उपयोग होती है"],
+        "options_en": ["Hot currency has low demand, hard currency has high demand", "Hot currency transfers rapidly, hard currency has high demand", "Both are the same", "Hot currency is used only in India"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, हॉट मुद्रा शीघ्र स्थानांतरण की प्रवृत्ति रखती है, जबकि दुलभ मुद्रा की अंतरराष्ट्रीय बाजार में लगातार अधिक मांग होती है।",
+        "explanation_en": "According to the notes, Hot Currency has a tendency for rapid transfer, while Hard Currency has consistently high demand in the international market."
+    },
+    {
+        "q": "RBI ने 1977 में कितने वैकल्पिक मापकों का प्रयोग शुरू किया?",
+        "q_en": "How many alternative measures did RBI start using in 1977?",
+        "options": ["2", "3", "4", "5"],
+        "options_en": ["2", "3", "4", "5"],
+        "answer": 2,
+        "explanation": "नोट्स में उल्लेख है कि 1977 में RBI ने चार वैकल्पिक मापक (M1, M2, M3, M4) शुरू किए।",
+        "explanation_en": "The notes mention that in 1977, RBI introduced four alternative measures (M1, M2, M3, M4)."
+    },
+    {
+        "q": "M0 को आधार मुद्रा क्यों कहा जाता है?",
+        "q_en": "Why is M0 called Base Money?",
+        "options": ["क्योंकि यह केवल नोट और सिक्कों को शामिल करता है", "क्योंकि यह अर्थव्यवस्था का मौद्रिक आधार है", "क्योंकि यह सबसे तरल है", "क्योंकि यह डाकघर जमा को शामिल करता है"],
+        "options_en": ["Because it includes only notes and coins", "Because it is the monetary base of the economy", "Because it is the most liquid", "Because it includes Post office deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को अर्थव्यवस्था का मौद्रिक आधार (Base Money) कहा गया है, जो प्रचलन में मुद्रा और RBI के पास जमा को शामिल करता है।",
+        "explanation_en": "The notes refer to M0 as the monetary base of the economy (Base Money), which includes currency in circulation and deposits with RBI."
+    },
+    {
+        "q": "कौन सा बैंक इंपीरियल बैंक ऑफ इंडिया का हिस्सा नहीं था?",
+        "q_en": "Which bank was not part of the Imperial Bank of India?",
+        "options": ["बैंक ऑफ बंगाल", "बैंक ऑफ बॉम्बे", "बैंक ऑफ मद्रास", "पंजाब नेशनल बैंक"],
+        "options_en": ["Bank of Bengal", "Bank of Bombay", "Bank of Madras", "Punjab National Bank"],
+        "answer": 3,
+        "explanation": "नोट्स के अनुसार, इंपीरियल बैंक ऑफ इंडिया तीन प्रेसीडेंसी बैंकों (बंगाल, बॉम्बे, मद्रास) के विलय से बना था। पंजाब नेशनल बैंक इसका हिस्सा नहीं था।",
+        "explanation_en": "According to the notes, the Imperial Bank of India was formed by the merger of three Presidency Banks (Bengal, Bombay, Madras). Punjab National Bank was not part of it."
+    },
+    {
+        "q": "RBI द्वारा डाकघर जमा को क्यों नियंत्रित नहीं किया जाता?",
+        "q_en": "Why does RBI not regulate Post Office deposits?",
+        "options": ["क्योंकि डाकघर RBI के अधीन है", "क्योंकि डाकघर सूचना एवं प्रसारण मंत्रालय के अधीन है", "क्योंकि डाकघर जमा तरल नहीं हैं", "क्योंकि डाकघर जमा M1 में शामिल हैं"],
+        "options_en": ["Because the Post Office is under RBI", "Because the Post Office is under the Ministry of Information and Broadcasting", "Because Post Office deposits are not liquid", "Because Post Office deposits are included in M1"],
+        "answer": 1,
+        "explanation": "नोट्स में स्पष्ट है कि डाकघर भारत सरकार के सूचना एवं प्रसारण मंत्रालय के अधीन है, इसलिए RBI इसे नियंत्रित नहीं करती।",
+        "explanation_en": "The notes clarify that the Post Office is under the Ministry of Information and Broadcasting of the Government of India, so RBI does not regulate it."
+    },
+    {
+        "q": "किस वर्ष में 1000, 5000, और 10,000 रुपये के नोट पुनः शुरू किए गए थे?",
+        "q_en": "In which year were the 1000, 5000, and 10,000 rupee notes reintroduced?",
+        "options": ["1946", "1954", "1978", "2016"],
+        "options_en": ["1946", "1954", "1978", "2016"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि 1000, 5000, और 10,000 रुपये के नोट 1954 में पुनः शुरू किए गए थे।",
+        "explanation_en": "The notes mention that the 1000, 5000, and 10,000 rupee notes were reintroduced in 1954."
+    },
+    {
+        "q": "यदि कोई मुद्रा अंतरराष्ट्रीय बाजार में कम मांग वाली है, तो उसे क्या कहा जाएगा?",
+        "q_en": "If a currency has low demand in the international market, what will it be called?",
+        "options": ["दुलभ मुद्रा", "सुलभ मुद्रा", "हॉट मुद्रा", "आधार मुद्रा"],
+        "options_en": ["Hard currency", "Soft currency", "Hot currency", "Base currency"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, सुलभ मुद्रा (Soft Currency) वह है जिसकी मांग अंतरराष्ट्रीय बाजार में कम होती है, जैसे भारतीय रुपया।",
+        "explanation_en": "According to the notes, a Soft Currency is one with low demand in the international market, such as the Indian Rupee."
+    },
+    {
+        "q": "RBI मुद्रा आपूर्ति को नियंत्रित करने के लिए क्या करती है?",
+        "q_en": "What does RBI do to control money supply?",
+        "options": ["नोटों की डिज़ाइन बदलती है", "अर्थव्यवस्था में मुद्रास्फीति को नियंत्रित करती है", "डाकघर जमा को नियंत्रित करती है", "केवल नोट छापती है"],
+        "options_en": ["Changes the design of notes", "Controls inflation in the economy", "Regulates Post office deposits", "Only prints notes"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI का उद्देश्य मूल्य स्थिरता बनाए रखना है, जो मुद्रा आपूर्ति के मापन और नियंत्रण से संभव है।",
+        "explanation_en": "The notes state that RBI’s objective is to maintain price stability, which is achieved through measuring and controlling money supply."
+    },
+    {
+        "q": "M1 को सबसे अधिक तरल क्यों माना जाता है?",
+        "q_en": "Why is M1 considered the most liquid?",
+        "options": ["क्योंकि इसमें समय जमा शामिल है", "क्योंकि इसमें केवल नकद और मांग जमा शामिल हैं", "क्योंकि इसमें डाकघर जमा शामिल हैं", "क्योंकि यह सबसे व्यापक है"],
+        "options_en": ["Because it includes time deposits", "Because it includes only cash and demand deposits", "Because it includes Post office deposits", "Because it is the most comprehensive"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M1 में जनता के पास मुद्रा और मांग जमा शामिल हैं, जो आसानी से व्यय योग्य हैं, इसलिए यह सबसे तरल है।",
+        "explanation_en": "According to the notes, M1 includes currency with the public and demand deposits, which are easily spendable, making it the most liquid."
+    },
+    {
+        "q": "यदि कोई मुद्रा शीघ्र स्थानांतरण की प्रवृत्ति रखती है, तो उसे क्या कहा जाएगा?",
+        "q_en": "If a currency has a tendency for rapid transfer, what will it be called?",
+        "options": ["सुलभ मुद्रा", "दुलभ मुद्रा", "हॉट मुद्रा", "आधार मुद्रा"],
+        "options_en": ["Soft currency", "Hard currency", "Hot currency", "Base currency"],
+        "answer": 2,
+        "explanation": "नोट्स में हॉट मुद्रा को ऐसी मुद्रा के रूप में परिभाषित किया गया है जो शीघ्र स्थानांतरण की प्रवृत्ति रखती है।",
+        "explanation_en": "The notes define Hot Currency as a currency with a tendency for rapid transfer."
+    },
+    {
+        "q": "RBI द्वारा डाकघर जमा को M4 में शामिल करने का क्या तर्क है?",
+        "q_en": "What is the logic behind including Post Office deposits in M4?",
+        "options": ["क्योंकि डाकघर RBI के अधीन है", "क्योंकि डाकघर जमा तरल हैं", "क्योंकि डाकघर जमा अर्थव्यवस्था में मुद्रा आपूर्ति का हिस्सा हैं", "क्योंकि डाकघर जमा M1 का हिस्सा हैं"],
+        "options_en": ["Because the Post Office is under RBI", "Because Post Office deposits are liquid", "Because Post Office deposits are part of the money supply in the economy", "Because Post Office deposits are part of M1"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, M4 में डाकघर जमा (NSC को छोड़कर) शामिल हैं क्योंकि वे अर्थव्यवस्था में मुद्रा आपूर्ति का हिस्सा हैं।",
+        "explanation_en": "According to the notes, M4 includes Post Office deposits (excluding NSC) because they are part of the money supply in the economy."
+    },
+    {
+        "q": "किस आधार पर M3 को व्यापक मुद्रा कहा जाता है?",
+        "q_en": "On what basis is M3 called Broad Money?",
+        "options": ["क्योंकि इसमें केवल नकद शामिल है", "क्योंकि इसमें समय जमा शामिल है", "क्योंकि यह सबसे कम तरल है", "क्योंकि यह डाकघर जमा को शामिल करता है"],
+        "options_en": ["Because it includes only cash", "Because it includes time deposits", "Because it is the least liquid", "Because it includes Post office deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में M3 को व्यापक मुद्रा कहा गया है क्योंकि इसमें M1 + समय जमा शामिल हैं, जो इसे व्यापक बनाता है।",
+        "explanation_en": "The notes refer to M3 as Broad Money because it includes M1 + time deposits, making it comprehensive."
+    },
+    {
+        "q": "RBI का राष्ट्रीयकरण क्यों आवश्यक था?",
+        "q_en": "Why was the nationalization of RBI necessary?",
+        "options": ["नोट छापने के लिए", "अर्थव्यवस्था पर पूर्ण नियंत्रण के लिए", "डाकघर जमा को नियंत्रित करने के लिए", "केवल बैंकों की जमा राशि बढ़ाने के लिए"],
+        "options_en": ["To print notes", "For full control over the economy", "To regulate Post office deposits", "To increase bank deposits only"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि RBI का राष्ट्रीयकरण 1949 में हुआ, जिसका तर्क अर्थव्यवस्था पर पूर्ण नियंत्रण स्थापित करना था।",
+        "explanation_en": "The notes mention that RBI’s nationalization in 1949 was aimed at establishing full control over the economy."
+    },
+    {
+        "q": "M0 को उच्च शक्ति प्राप्त मुद्रा क्यों कहा जाता है?",
+        "q_en": "Why is M0 called High Powered Money?",
+        "options": ["क्योंकि यह सबसे तरल है", "क्योंकि यह अर्थव्यवस्था का मौद्रिक आधार है", "क्योंकि इसमें डाकघर जमा शामिल हैं", "क्योंकि यह केवल नोट और सिक्कों को शामिल करता है"],
+        "options_en": ["Because it is the most liquid", "Because it is the monetary base of the economy", "Because it includes Post office deposits", "Because it includes only notes and coins"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को उच्च शक्ति प्राप्त मुद्रा कहा गया है क्योंकि यह अर्थव्यवस्था का मौद्रिक आधार है।",
+        "explanation_en": "The notes refer to M0 as High Powered Money because it is the monetary base of the economy."
+    },
+    {
+        "q": "यदि कोई मुद्रा अंतरराष्ट्रीय बाजार में स्थिर मांग रखती है, तो उसे क्या कहा जाएगा?",
+        "q_en": "If a currency has stable demand in the international market, what will it be called?",
+        "options": ["सुलभ मुद्रा", "दुलभ मुद्रा", "हॉट मुद्रा", "आधार मुद्रा"],
+        "options_en": ["Soft currency", "Hard currency", "Hot currency", "Base currency"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, दुलभ मुद्रा (Hard Currency) की अंतरराष्ट्रीय बाजार में स्थिर और उच्च मांग होती है।",
+        "explanation_en": "According to the notes, Hard Currency has stable and high demand in the international market."
+    },
+    {
+        "q": "RBI द्वारा नोटों की डिज़ाइन का निर्णय कौन करता है?",
+        "q_en": "Who decides the design of notes issued by RBI?",
+        "options": ["RBI स्वतंत्र रूप से", "केंद्र सरकार, RBI की सिफारिश पर", "डाकघर", "भारतीय संसद"],
+        "options_en": ["RBI independently", "Central Government on RBI’s recommendation", "Post Office", "Indian Parliament"],
+        "answer": 1,
+        "explanation": "नोट्स में धारा 25 के तहत कहा गया है कि नोट की डिज़ाइन का निर्णय केंद्र सरकार RBI की सिफारिश पर करती है।",
+        "explanation_en": "The notes state under Section 25 that the design of notes is decided by the Central Government on RBI’s recommendation."
+    },
+    {
+        "q": "किस आधार पर 2016 में 500 और 1000 रुपये के नोटों पर प्रतिबंध लगाया गया?",
+        "q_en": "On what basis were the 500 and 1000 rupee notes banned in 2016?",
+        "options": ["जालसाजी और काले धन पर अंकुश लगाने के लिए", "नई डिज़ाइन लागू करने के लिए", "डाकघर जमा को बढ़ाने के लिए", "अंतरराष्ट्रीय मांग बढ़ाने के लिए"],
+        "options_en": ["To curb counterfeiting and black money", "To introduce new designs", "To increase Post office deposits", "To increase international demand"],
+        "answer": 0,
+        "explanation": "नोट्स में उल्लेख है कि 8 नवंबर 2016 को विमुद्रीकरण का उद्देश्य जालसाजी और काले धन पर अंकुश लगाना था।",
+        "explanation_en": "The notes mention that the demonetization on 8 November 2016 aimed to curb counterfeiting and black money."
+    },
+    {
+        "q": "M2 में M1 की तुलना में क्या अतिरिक्त शामिल है?",
+        "q_en": "What additional component is included in M2 compared to M1?",
+        "options": ["समय जमा", "डाकघर बचत जमा", "राष्ट्रीय बचत पत्र", "RBI के पास जमा"],
+        "options_en": ["Time deposits", "Post office savings deposits", "National Savings Certificate", "Deposits with RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M2 = M1 + डाकघर बचत जमा।",
+        "explanation_en": "According to the notes, M2 = M1 + Post office savings deposits."
+    },
+    {
+        "q": "RBI की स्थापना से पहले भारतीय रुपये की छपाई कहाँ होती थी?",
+        "q_en": "Where were Indian rupees printed before the establishment of RBI?",
+        "options": ["बैंक ऑफ इंग्लैंड", "इंपीरियल बैंक ऑफ इंडिया", "डाकघर", "भारतीय संसद"],
+        "options_en": ["Bank of England", "Imperial Bank of India", "Post Office", "Indian Parliament"],
+        "answer": 0,
+        "explanation": "नोट्स में उल्लेख है कि RBI की स्थापना से पहले भारतीय रुपये बैंक ऑफ इंग्लैंड से छपकर आते थे।",
+        "explanation_en": "The notes mention that before RBI’s establishment, Indian rupees were printed by the Bank of England."
+    },
+    {
+        "q": "किस आधार पर M1 को संकीर्ण मुद्रा कहा जाता है?",
+        "q_en": "On what basis is M1 called Narrow Money?",
+        "options": ["क्योंकि इसमें समय जमा शामिल नहीं है", "क्योंकि यह सबसे कम तरल है", "क्योंकि इसमें डाकघर जमा शामिल हैं", "क्योंकि यह सबसे व्यापक है"],
+        "options_en": ["Because it does not include time deposits", "Because it is the least liquid", "Because it includes Post office deposits", "Because it is the most comprehensive"],
+        "answer": 0,
+        "explanation": "नोट्स में M1 को संकीर्ण मुद्रा कहा गया है क्योंकि इसमें केवल नकद, मांग जमा, और अन्य जमा शामिल हैं, समय जमा नहीं।",
+        "explanation_en": "The notes refer to M1 as Narrow Money because it includes only cash, demand deposits, and other deposits, not time deposits."
+    },
+    {
+        "q": "RBI ने 1977 में M3 के साथ कौन से अन्य मापक शुरू किए?",
+        "q_en": "Which other measures did RBI introduce along with M3 in 1977?",
+        "options": ["M0 और M1", "M1, M2, और M4", "M0 और M2", "M0 और M4"],
+        "options_en": ["M0 and M1", "M1, M2, and M4", "M0 and M2", "M0 and M4"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि 1977 में RBI ने चार वैकल्पिक मापक (M1, M2, M3, M4) शुरू किए।",
+        "explanation_en": "The notes mention that in 1977, RBI introduced four alternative measures (M1, M2, M3, M4)."
+    },
+    {
+        "q": "RBI की स्थापना के लिए हिल्टन यंग आयोग की सिफारिश का आधार क्या था?",
+        "q_en": "What was the basis for the Hilton Young Commission’s recommendation for RBI’s establishment?",
+        "options": ["भारतीय अर्थव्यवस्था में मूल्य स्थिरता", "एक समरूप बाजार तंत्र की आवश्यकता", "डाकघर जमा को नियंत्रित करना", "केवल नोट छापने की आवश्यकता"],
+        "options_en": ["Price stability in the Indian economy", "Need for a uniform market mechanism", "Regulating Post office deposits", "Need to print notes only"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI की स्थापना का उद्देश्य एक समरूप बाजार तंत्र और मजबूत बैंकिंग प्रणाली की आवश्यकता थी।",
+        "explanation_en": "The notes state that the purpose of RBI’s establishment was the need for a uniform market mechanism and a strong banking system."
+    },
+    {
+        "q": "M4 को सबसे कम तरल क्यों माना जाता है?",
+        "q_en": "Why is M4 considered the least liquid?",
+        "options": ["क्योंकि इसमें केवल नकद शामिल है", "क्योंकि इसमें डाकघर जमा और समय जमा शामिल हैं", "क्योंकि यह सबसे संकीर्ण है", "क्योंकि यह RBI द्वारा नियंत्रित नहीं है"],
+        "options_en": ["Because it includes only cash", "Because it includes Post office deposits and time deposits", "Because it is the most narrow", "Because it is not controlled by RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M4 में M3 + डाकघर जमा शामिल हैं, जो समय जमा और कम तरल जमा को शामिल करते हैं।",
+        "explanation_en": "According to the notes, M4 includes M3 + Post office deposits, which include time deposits and less liquid deposits."
+    },
+    {
+        "q": "RBI अधिनियम 1934 की धारा 22 और 25 में क्या अंतर है?",
+        "q_en": "What is the difference between Section 22 and Section 25 of the RBI Act 1934?",
+        "options": ["धारा 22 नोट छापने का अधिकार देती है, धारा 25 नोट की डिज़ाइन निर्धारित करती है", "धारा 22 नोट की डिज़ाइन देती है, धारा 25 नोट छापने का अधिकार देती है", "दोनों नोट छापने से संबंधित हैं", "दोनों डाकघर जमा से संबंधित हैं"],
+        "options_en": ["Section 22 grants the right to print notes, Section 25 specifies the design of notes", "Section 22 specifies the design of notes, Section 25 grants the right to print notes", "Both are related to printing notes", "Both are related to Post office deposits"],
+        "answer": 0,
+        "explanation": "नोट्स में धारा 22 और 25 की भूमिकाएँ स्पष्ट हैं।",
+        "explanation_en": "The notes clarify the roles of Section 22 and Section 25."
+    },
+    {
+        "q": "किस समिति ने भारतीय केंद्रीय बैंकिंग की आवश्यकता को पुनर्जनन किया?",
+        "q_en": "Which committee rekindled the need for a central bank in India?",
+        "options": ["चैंबरलेन आयोग", "हिल्टन यंग आयोग", "भारतीय केंद्रीय बैंकिंग जांच समिति", "गोरेवाला समिति"],
+        "options_en": ["Chamberlain Commission", "Hilton Young Commission", "Indian Central Banking Enquiry Committee", "Gorewala Committee"],
+        "answer": 2,
+        "explanation": "नोट्स में 1931 में भारतीय केंद्रीय बैंकिंग जांच समिति ने RBI की स्थापना के मुद्दे को पुनर्जनन किया।",
+        "explanation_en": "The notes mention that in 1931, the Indian Central Banking Enquiry Committee rekindled the need for RBI’s establishment."
+    },
+    {
+        "q": "M0 में बैंकों द्वारा RBI के पास जमा क्यों शामिल है?",
+        "q_en": "Why are bank deposits with RBI included in M0?",
+        "options": ["क्योंकि वे सबसे तरल हैं", "क्योंकि वे अर्थव्यवस्था का मौद्रिक आधार बनाते हैं", "क्योंकि वे डाकघर जमा का हिस्सा हैं", "क्योंकि वे समय जमा का हिस्सा हैं"],
+        "options_en": ["Because they are the most liquid", "Because they form the monetary base of the economy", "Because they are part of Post office deposits", "Because they are part of time deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को मौद्रिक आधार कहा गया है, जिसमें RBI के पास बैंकों का जमा शामिल है।",
+        "explanation_en": "The notes refer to M0 as the monetary base, which includes bank deposits with RBI."
+    },
+    {
+        "q": "RBI की स्थापना से पहले रुपये की छपाई का प्रबंधन कौन करता था?",
+        "q_en": "Who managed the printing of rupees before RBI’s establishment?",
+        "options": ["इंपीरियल बैंक ऑफ इंडिया", "बैंक ऑफ इंग्लैंड", "प्रेसीडेंसी बैंक", "डाकघर"],
+        "options_en": ["Imperial Bank of India", "Bank of England", "Presidency Banks", "Post Office"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI की स्थापना से पहले रुपये बैंक ऑफ इंग्लैंड से छपकर आ Oeste थे।",
+        "explanation_en": "The notes state that before RBI’s establishment, rupees were printed by the Bank of England."
+    },
+    {
+        "q": "किस आधार पर 1978 में विमुद्रीकरण किया गया?",
+        "q_en": "On what basis was demonetization carried out in 1978?",
+        "options": ["नई मुद्रा लागू करने के लिए", "जालसाजी और काले धन पर अंकुश लगाने के लिए", "डाकघर जमा को बढ़ाने के लिए", "अंतरराष्ट्रीय मांग बढ़ाने के लिए"],
+        "options_en": ["To introduce new currency", "To curb counterfeiting and black money", "To increase Post office deposits", "To increase international demand"],
+        "answer": 1,
+        "explanation": "नोट्स में 16 जनवरी 1978 के विमुद्रीकरण का उद्देश्य जालसाजी और काले धन पर अंकुश लगाना बताया गया है।",
+        "explanation_en": "The notes state that the demonetization on 16 January 1978 aimed to curb counterfeiting and black money."
+    },
+   
+    {
+        "q": "M3 में M1 की तुलना में अतिरिक्त क्या शामिल है?",
+        "q_en": "What additional component is included in M3 compared to M1?",
+        "options": ["डाकघर जमा", "समय जमा", "राष्ट्रीय बचत पत्र", "RBI के पास जमा"],
+        "options_en": ["Post office deposits", "Time deposits", "National Savings Certificate", "Deposits with RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M3 = M1 + समय जमा। समय जमा (Time Deposits) M3 में अतिरिक्त शामिल हैं, जो M1 में नहीं हैं।",
+        "explanation_en": "According to the notes, M3 = M1 + Time deposits. Time deposits are additionally included in M3, which are not in M1."
+    },
+    {
+        "q": "RBI की स्थापना से पहले भारत में केंद्रीय बैंकिंग की आवश्यकता को किसने उठाया?",
+        "q_en": "Who raised the need for central banking in India before RBI’s establishment?",
+        "options": ["जे.एम. कीन्स", "डॉ. बी.आर. अंबेडकर", "हिल्टन यंग आयोग", "भारतीय केंद्रीय बैंकिंग जांच समिति"],
+        "options_en": ["J.M. Keynes", "Dr. B.R. Ambedkar", "Hilton Young Commission", "Indian Central Banking Enquiry Committee"],
+        "answer": 3,
+        "explanation": "नोट्स में कहा गया है कि भारतीय केंद्रीय बैंकिंग जांच समिति (1931) ने केंद्रीय बैंकिंग की आवश्यकता को पुनर्जनन किया।",
+        "explanation_en": "The notes state that the Indian Central Banking Enquiry Committee (1931) rekindled the need for central banking."
+    },
+    {
+        "q": "किस वर्ष में भारतीय स्टेट बैंक की स्थापना हुई थी?",
+        "q_en": "In which year was the State Bank of India established?",
+        "options": ["1921", "1935", "1949", "1955"],
+        "options_en": ["1921", "1935", "1949", "1955"],
+        "answer": 3,
+        "explanation": "नोट्स के अनुसार, भारतीय स्टेट बैंक की स्थापना 1955 में इंपीरियल बैंक ऑफ इंडिया के राष्ट्रीयकरण के बाद हुई थी।",
+        "explanation_en": "According to the notes, the State Bank of India was established in 1955 after the nationalization of the Imperial Bank of India."
+    },
+    
+    {
+        "q": "RBI Act 1934 की धारा 24 और धारा 25 में क्या अंतर है?",
+        "q_en": "What is the difference between Section 24 and Section 25 of the RBI Act 1934?",
+        "options": ["धारा 24 नोट के मूल्यवर्ग को निर्धारित करती है, धारा 25 नोट की डिज़ाइन को", "धारा 24 नोट की डिज़ाइन को निर्धारित करती है, धारा 25 नोट के मूल्यवर्ग को", "दोनों नोट छापने के अधिकार से संबंधित हैं", "दोनों डाकघर जमा से संबंधित हैं"],
+        "options_en": ["Section 24 specifies the denomination of notes, Section 25 specifies the design of notes", "Section 24 specifies the design of notes, Section 25 specifies the denomination of notes", "Both are related to the right to print notes", "Both are related to Post office deposits"],
+        "answer": 0,
+        "explanation": "नोट्स में स्पष्ट है कि धारा 24 नोट के मूल्यवर्ग (जैसे 2, 5, 10 रुपये आदि) को निर्धारित करती है, जबकि धारा 25 नोट की डिज़ाइन और कागज को।",
+        "explanation_en": "The notes clarify that Section 24 specifies the denomination of notes (e.g., 2, 5, 10 rupees, etc.), while Section 25 specifies the design and paper of notes."
+    },
+    {
+        "q": "M0 में जनता के पास मुद्रा क्यों शामिल है?",
+        "q_en": "Why is currency with the public included in M0?",
+        "options": ["क्योंकि यह सबसे कम तरल है", "क्योंकि यह अर्थव्यवस्था का मौद्रिक आधार है", "क्योंकि यह डाकघर जमा का हिस्सा है", "क्योंकि यह समय जमा का हिस्सा है"],
+        "options_en": ["Because it is the least liquid", "Because it is the monetary base of the economy", "Because it is part of Post office deposits", "Because it is part of time deposits"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M0 में जनता के पास मुद्रा शामिल है क्योंकि यह अर्थव्यवस्था का मौद्रिक आधार बनाती है।",
+        "explanation_en": "According to the notes, currency with the public is included in M0 because it forms the monetary base of the economy."
+    },
+    {
+        "q": "किस वर्ष में RBI ने M1, M2, M3, और M4 को परिभाषित किया?",
+        "q_en": "In which year did RBI define M1, M2, M3, and M4?",
+        "options": ["1967", "1977", "1968", "1998"],
+        "options_en": ["1967", "1977", "1968", "1998"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि 1977 में RBI ने चार वैकल्पिक मापक (M1, M2, M3, M4) को परिभाषित किया।",
+        "explanation_en": "The notes mention that in 1977, RBI defined four alternative measures (M1, M2, M3, M4)."
+    },
+    {
+        "q": "RBI की स्थापना का प्राथमिक उद्देश्य क्या था?",
+        "q_en": "What was the primary objective of RBI’s establishment?",
+        "options": ["नोट छापना", "अर्थव्यवस्था में मूल्य स्थिरता", "डाकघर जमा को नियंत्रित करना", "बैंकों की जमा राशि बढ़ाना"],
+        "options_en": ["To print notes", "Price stability in the economy", "To regulate Post office deposits", "To increase bank deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI की स्थापना का मुख्य उद्देश्य अर्थव्यवस्था में मूल्य स्थिरता बनाए रखना था।",
+        "explanation_en": "The notes state that the primary objective of RBI’s establishment was to maintain price stability in the economy."
+    },
+    {
+        "q": "किस आधार पर भारतीय रुपया सुलभ मुद्रा माना जाता है?",
+        "q_en": "On what basis is the Indian Rupee considered a Soft Currency?",
+        "options": ["क्योंकि इसकी मांग अंतरराष्ट्रीय बाजार में कम है", "क्योंकि यह शीघ्र स्थानांतरण करता है", "क्योंकि यह सबसे तरल है", "क्योंकि यह समय जमा का हिस्सा है"],
+        "options_en": ["Because its demand is low in the international market", "Because it transfers rapidly", "Because it is the most liquid", "Because it is part of time deposits"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, भारतीय रुपया सुलभ मुद्रा है क्योंकि इसकी मांग अंतरराष्ट्रीय बाजार में कम होती है।",
+        "explanation_en": "According to the notes, the Indian Rupee is a Soft Currency because its demand is low in the international market."
+    },
+    {
+        "q": "RBI द्वारा मुद्रा आपूर्ति के मापन का आधार क्या है?",
+        "q_en": "What is the basis for RBI’s measurement of money supply?",
+        "options": ["बैंकों की जमा राशि", "अर्थव्यवस्था में मुद्रा का प्रवाह", "डाकघर जमा", "नोटों की डिज़ाइन"],
+        "options_en": ["Bank deposits", "Flow of money in the economy", "Post office deposits", "Design of notes"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि RBI मुद्रा आपूर्ति का मापन अर्थव्यवस्था में मुद्रा के प्रवाह के आधार पर करती है।",
+        "explanation_en": "The notes state that RBI measures money supply based on the flow of money in the economy."
+    },
+    {
+        "q": "किस वर्ष में 500 और 1000 रुपये के नोटों का विमुद्रीकरण हुआ था?",
+        "q_en": "In which year were the 500 and 1000 rupee notes demonetized?",
+        "options": ["1946", "1978", "2016", "1954"],
+        "options_en": ["1946", "1978", "2016", "1954"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, 500 और 1000 रुपये के नोटों का विमुद्रीकरण 8 नवंबर 2016 को हुआ था।",
+        "explanation_en": "According to the notes, the 500 and 1000 rupee notes were demonetized on 8 November 2016."
+    },
+    {
+        "q": "M1 में RBI की अन्य जमाएं क्या हैं?",
+        "q_en": "What are the other deposits with RBI included in M1?",
+        "options": ["डाकघर जमा", "बैंकों की समय जमा", "गैर-बैंकिंग वित्तीय संस्थानों की जमा", "RBI के पास अन्य वित्तीय संस्थानों की जमा"],
+        "options_en": ["Post office deposits", "Time deposits of banks", "Deposits of non-banking financial institutions", "Deposits of other financial institutions with RBI"],
+        "answer": 3,
+        "explanation": "नोट्स में M1 में शामिल 'RBI की अन्य जमाएं' को अन्य वित्तीय संस्थानों की जमा के रूप में परिभाषित किया गया है।",
+        "explanation_en": "The notes define 'other deposits with RBI' in M1 as deposits of other financial institutions with RBI."
+    },
+    {
+        "q": "RBI का राष्ट्रीयकरण किसके द्वारा किया गया?",
+        "q_en": "Who nationalized the RBI?",
+        "options": ["भारत सरकार", "इंपीरियल बैंक ऑफ इंडिया", "हिल्टन यंग आयोग", "डाकघर"],
+        "options_en": ["Government of India", "Imperial Bank of India", "Hilton Young Commission", "Post Office"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, RBI का राष्ट्रीयकरण 1 जनवरी 1949 को भारत सरकार द्वारा किया गया।",
+        "explanation_en": "According to the notes, RBI was nationalized by the Government of India on 1 January 1949."
+    },
+    {
+        "q": "किस आधार पर M2 को M1 से अधिक व्यापक माना जाता है?",
+        "q_en": "On what basis is M2 considered broader than M1?",
+        "options": ["क्योंकि इसमें समय जमा शामिल हैं", "क्योंकि इसमें डाकघर बचत जमा शामिल हैं", "क्योंकि यह सबसे कम तरल है", "क्योंकि इसमें RBI के पास जमा शामिल हैं"],
+        "options_en": ["Because it includes time deposits", "Because it includes Post office savings deposits", "Because it is the least liquid", "Because it includes deposits with RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M2 = M1 + डाकघर बचत जमा, जो इसे M1 से अधिक व्यापक बनाता है।",
+        "explanation_en": "According to the notes, M2 = M1 + Post office savings deposits, which makes it broader than M1."
+    },
+    {
+        "q": "RBI अधिनियम 1934 की धारा 22 का क्या प्रावधान है?",
+        "q_en": "What is the provision of Section 22 of the RBI Act 1934?",
+        "options": ["नोटों की डिज़ाइन", "नोट छापने का विशेष अधिकार", "मुद्रा आपूर्ति का मापन", "डाकघर जमा का नियंत्रण"],
+        "options_en": ["Design of notes", "Exclusive right to print notes", "Measurement of money supply", "Regulation of Post office deposits"],
+        "answer": 1,
+        "explanation": "नोट्स में धारा 22 को नोट छापने का विशेष अधिकार प्रदान करने वाली धारा के रूप में उल्लेखित किया गया है।",
+        "explanation_en": "The notes mention Section 22 as the section granting the exclusive right to print notes."
+    },
+    {
+        "q": "किस वर्ष में हिल्टन यंग आयोग की स्थापना हुई थी?",
+        "q_en": "In which year was the Hilton Young Commission established?",
+        "options": ["1913", "1926", "1931", "1934"],
+        "options_en": ["1913", "1926", "1931", "1934"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि हिल्टन यंग आयोग 1926 में स्थापित हुआ था।",
+        "explanation_en": "The notes mention that the Hilton Young Commission was established in 1926."
+    },
+    {
+        "q": "M4 में डाकघर जमा को शामिल करने का क्या कारण है?",
+        "q_en": "What is the reason for including Post Office deposits in M4?",
+        "options": ["क्योंकि वे सबसे तरल हैं", "क्योंकि वे अर्थव्यवस्था में मुद्रा आपूर्ति का हिस्सा हैं", "क्योंकि वे समय जमा का हिस्सा हैं", "क्योंकि वे RBI द्वारा नियंत्रित हैं"],
+        "options_en": ["Because they are the most liquid", "Because they are part of the money supply in the economy", "Because they are part of time deposits", "Because they are controlled by RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, M4 में डाकघर जमा (NSC को छोड़कर) शामिल हैं क्योंकि वे अर्थव्यवस्था में मुद्रा आपूर्ति का हिस्सा हैं।",
+        "explanation_en": "According to the notes, M4 includes Post Office deposits (excluding NSC) because they are part of the money supply in the economy."
+    },
+    {
+        "q": "किस आधार पर 1946 में 1000 और 10,000 रुपये के नोटों का विमुद्रीकरण हुआ?",
+        "q_en": "On what basis were the 1000 and 10,000 rupee notes demonetized in 1946?",
+        "options": ["नई डिज़ाइन लागू करने के लिए", "जालसाजी और काले धन पर अंकुश लगाने के लिए", "डाकघर जमा को बढ़ाने के लिए", "अंतरराष्ट्रीय मांग बढ़ाने के लिए"],
+        "options_en": ["To introduce new designs", "To curb counterfeiting and black money", "To increase Post office deposits", "To increase international demand"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि जनवरी 1946 में 1000 और 10,000 रुपये के नोटों का विमुद्रीकरण जालसाजी और काले धन पर अंकुश लगाने के लिए किया गया था।",
+        "explanation_en": "The notes state that in January 1946, the 1000 and 10,000 rupee notes were demonetized to curb counterfeiting and black money."
+    },
+    {
+        "q": "RBI की स्थापना के समय इसका मुख्यालय कहाँ था?",
+        "q_en": "Where was RBI’s headquarters at the time of its establishment?",
+        "options": ["मुंबई", "कोलकाता", "दिल्ली", "चेन्नई"],
+        "options_en": ["Mumbai", "Kolkata", "Delhi", "Chennai"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि RBI की स्थापना के समय इसका मुख्यालय कोलकाता में था।",
+        "explanation_en": "The notes mention that at the time of its establishment, RBI’s headquarters was in Kolkata."
+    },
+    {
+        "q": "किस समिति ने 1998 में तरलता समुच्चय (L1, L2, L3) की सिफारिश की थी?",
+        "q_en": "Which committee recommended the liquidity aggregates (L1, L2, L3) in 1998?",
+        "options": ["चैंबरलेन आयोग", "हिल्टन यंग आयोग", "डॉ. वाई.वी. रेड्डी समिति", "गोरेवाला समिति"],
+        "options_en": ["Chamberlain Commission", "Hilton Young Commission", "Dr. Y.V. Reddy Committee", "Gorewala Committee"],
+        "answer": 2,
+        "explanation": "नोट्स में 1998 में डॉ. वाई.वी. रेड्डी समिति द्वारा तरलता समुच्चय L1, L2, और L3 की सिफारिश का उल्लेख है।",
+        "explanation_en": "The notes mention that in 1998, the Dr. Y.V. Reddy Committee recommended the liquidity aggregates L1, L2, and L3."
+    },
+    {
+        "q": "M0 को उच्च शक्ति प्राप्त मुद्रा क्यों कहा जाता है?",
+        "q_en": "Why is M0 called High Powered Money?",
+        "options": ["क्योंकि यह सबसे तरल है", "क्योंकि यह बैंकों द्वारा मुद्रा सृजन का आधार है", "क्योंकि इसमें डाकघर जमा शामिल हैं", "क्योंकि यह केवल नकद को शामिल करता है"],
+        "options_en": ["Because it is the most liquid", "Because it is the basis for currency creation by banks", "Because it includes Post office deposits", "Because it includes only cash"],
+        "answer": 1,
+        "explanation": "नोट्स में M0 को उच्च शक्ति प्राप्त मुद्रा कहा गया है क्योंकि यह बैंकों द्वारा मुद्रा सृजन का आधार बनता है।",
+        "explanation_en": "The notes refer to M0 as High Powered Money because it forms the basis for currency creation by banks."
+    }
+
+    
+];
+
+        let selectedAnswers = new Array(questions.length).fill(null);
+        let submitted = false;
+        let score = 0;
+        let totalSeconds = 0;
+        let language = 'hi';
+        let timerInterval;
+        let answerTimes = [];
+        let startTime;
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                document.getElementById('totalTime').innerText = formatTime(totalSeconds);
+                updateTimerBar();
+            }, 1000);
+        }
+
+        function updateTimerBar() {
+            const maxTime = 150;
+            const width = (1 - totalSeconds / maxTime) * 100;
+            let color;
+            if (totalSeconds <= 50) {
+                color = 'lightgreen';
+            } else if (totalSeconds <= 75) {
+                color = 'green';
+            } else if (totalSeconds <= 100) {
+                color = 'black';
+            } else {
+                color = 'red';
+            }
+            const fill = document.getElementById('timerBarFill');
+            fill.style.width = `${width}%`;
+            fill.style.background = color;
+            if (totalSeconds >= maxTime && !submitted) {
+                submitQuiz();
+            }
+        }
+
+        function loadQuestions() {
+            const quiz = document.getElementById('quiz');
+            const lang = document.getElementById('languageToggle').value;
+            const answered = selectedAnswers.filter(a => a !== null).length;
+            document.getElementById('progressBar').style.width = (answered / questions.length * 100) + '%';
+            document.getElementById('progressCircle').textContent = `${Math.round(answered / questions.length * 100)}%`;
+            document.getElementById('progressCircle').style.transform = 'scale(0)';
+            setTimeout(() => document.getElementById('progressCircle').style.transform = 'scale(1)', 10);
+
+            quiz.innerHTML = questions.map((q, index) => {
+                let cls = '';
+                if (selectedAnswers[index] !== null) {
+                    cls = 'answered';
+                }
+                return `
+                    <div class='card ${cls}'>
+                        <div class='question'>
+                            Q${index + 1}. ${lang === 'en' ? q.q_en : q.q}
+                            ${lang === 'both' ? `<div class='en'>Q${index + 1}. ${q.q_en}</div>` : ''}
+                        </div>
+                        <div class='options'>
+                            ${q.options.map((opt, i) => {
+                                let btnCls = '';
+                                if (selectedAnswers[index] !== null) {
+                                    if (i === q.answer) btnCls = 'correct disabled';
+                                    else if (selectedAnswers[index] === i) btnCls = 'wrong disabled';
+                                    else btnCls = 'disabled';
+                                }
+                                return `
+                                    <button class='${btnCls}' onclick='selectOption(${index}, ${i})' ${btnCls.includes('disabled') ? 'disabled' : ''}>
+                                        ${String.fromCharCode(65 + i)}) ${lang === 'en' ? q.options_en[i] : opt}
+                                        ${lang === 'both' ? `<div class='en'>${String.fromCharCode(65 + i)}) ${q.options_en[i]}</div>` : ''}
+                                    </button>`;
+                            }).join('')}
+                        </div>
+                        ${selectedAnswers[index] !== null ? `
+                            <div class='explanation ${selectedAnswers[index] !== null ? 'active' : ''}'>
+                                <b>Explanation:</b> ${lang === 'en' ? q.explanation_en : q.explanation}
+                                ${lang === 'both' ? `<div class='en'><b>Explanation:</b> ${q.explanation_en}</div>` : ''}
+                            </div>` : ''}
+                    </div>`;
+            }).join('');
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (submitted) return;
+            if (selectedAnswers[qIndex] !== null) return;
+
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+            answerTimes[qIndex] = { time: timeTaken, correct: optIndex === questions[qIndex].answer };
+
+            selectedAnswers[qIndex] = optIndex;
+            if (optIndex === questions[qIndex].answer) {
+                score++;
+            }
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+            startTime = Date.now(); // Reset start time for the next question
+        }
+
+        function submitQuiz() {
+            if (submitted) return;
+
+            selectedAnswers.forEach((answer, index) => {
+                if (answer === null) {
+                    selectedAnswers[index] = -1; // Mark unattempted
+                }
+            });
+
+            submitted = true;
+            document.getElementById('score').innerText = `Your Score: ${score} / ${questions.length} (Total Time: ${formatTime(totalSeconds)})`;
+            loadQuestions();
+            clearInterval(timerInterval);
+            setTimeout(goToDashboard, 2000);
+        }
+
+        function openRestartModal() {
+            if (submitted) {
+                alert('Cannot restart after submit');
+                return;
+            }
+            const checkboxes = document.getElementById('questionCheckboxes');
+            checkboxes.innerHTML = '';
+
+            const selectAllLabel = document.createElement('label');
+            const selectAll = document.createElement('input');
+            selectAll.type = 'checkbox';
+            selectAll.onclick = () => {
+                const cbs = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]');
+                cbs.forEach(cb => {
+                    if (cb !== selectAll) cb.checked = selectAll.checked;
+                });
+            };
+            selectAllLabel.appendChild(selectAll);
+            selectAllLabel.appendChild(document.createTextNode('Select All'));
+            checkboxes.appendChild(selectAllLabel);
+            checkboxes.appendChild(document.createElement('br'));
+
+            questions.forEach((q, i) => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = i;
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(`Question ${i + 1}`));
+                checkboxes.appendChild(label);
+                checkboxes.appendChild(document.createElement('br'));
+            });
+
+            document.getElementById('restartModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('restartModal').style.display = 'none';
+        }
+
+        function applyRestart() {
+            const checkboxes = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                if (cb.value !== undefined) {
+                    const idx = parseInt(cb.value);
+                    if (selectedAnswers[idx] === questions[idx].answer) {
+                        score--;
+                    }
+                    selectedAnswers[idx] = null;
+                    answerTimes[idx] = null; // Clear answer time
+                }
+            });
+
+            closeModal();
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+        }
+
+        function goToQuizPage() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'block';
+            document.getElementById('dashboardPage').style.display = 'none';
+            startTimer();
+            loadQuestions();
+            startTime = Date.now(); // Initialize start time for the first question
+        }
+
+        function goToDashboard() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            loadDashboard();
+        }
+
+        function loadDashboard() {
+            const totalQuestions = questions.length;
+            const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+            const unattempted = totalQuestions - attempted;
+            const correct = score;
+            const wrong = attempted - correct;
+            const scorePercentage = (correct / totalQuestions * 100).toFixed(1) || 0;
+           const totalMarks = `${totalQuestions} / ${correct}`; // 1 mark per question
+
+            const totalTime = formatTime(totalSeconds);
+            const avgTimePerQuestion = (totalSeconds / attempted).toFixed(1) || 0;
+            const speed = (attempted / (totalSeconds / 60)).toFixed(1) || 0;
+            const accuracy = (correct / attempted * 100).toFixed(1) || 0;
+            const efficiency = accuracy > 80 ? 'High' : accuracy > 60 ? 'Medium' : 'Low';
+            const percentile = accuracy > 90 ? 'Top 15%' : accuracy > 70 ? 'Top 30%' : 'Top 50%';
+            const rank = Math.floor(Math.random() * 280) + 1; // Placeholder
+            let longestStreak = 0;
+            let currentStreak = 0;
+            selectedAnswers.forEach((answer, i) => {
+                if (answer === questions[i].answer) {
+                    currentStreak++;
+                    longestStreak = Math.max(longestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            });
+            const bestSection = 'History (100%)'; // Static as per quiz context
+            const weakSection = 'N/A'; // Placeholder
+            const improvement = accuracy > 80 ? '+5%' : '+2%'; // Placeholder
+            const performanceLevel = accuracy > 80 ? 'Advanced' : accuracy > 60 ? 'Intermediate' : 'Beginner';
+            const medals = accuracy > 80 ? 'Accuracy Master' : 'N/A'; // Placeholder
+            const efficiencyScore = (accuracy * 0.9).toFixed(0); // Placeholder
+            const predictedScore = (scorePercentage * 1.02).toFixed(1); // Placeholder
+            const fastestAnswer = answerTimes.filter(t => t).length ? Math.min(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const slowestAnswer = answerTimes.filter(t => t).length ? Math.max(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const avgTimeCorrect = answerTimes.filter(t => t && t.correct).length ? (answerTimes.filter(t => t && t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && t.correct).length).toFixed(1) : 'N/A';
+            const avgTimeWrong = answerTimes.filter(t => t && !t.correct).length ? (answerTimes.filter(t => t && !t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && !t.correct).length).toFixed(1) : 'N/A';
+            const timeEfficiency = (1 - totalSeconds / (totalQuestions * 30)).toFixed(2); // Placeholder
+            const guessRate = wrong > 0 ? ((wrong / attempted) * 100).toFixed(1) : 0;
+            const firstHalfAccuracy = selectedAnswers.slice(0, Math.ceil(totalQuestions / 2)).filter((a, i) => a === questions[i].answer).length / Math.ceil(totalQuestions / 2) * 100 || 0;
+
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = `
+                <div class="dash-box"><h4>Total Questions</h4><p>${totalQuestions}</p></div>
+                <div class="dash-box"><h4>Attempted</h4><p>${attempted}</p></div>
+                <div class="dash-box"><h4>Unattempted</h4><p>${unattempted}</p></div>
+                <div class="dash-box"><h4>Correct</h4><p>${correct}</p></div>
+                <div class="dash-box"><h4>Wrong</h4><p>${wrong}</p></div>
+                <div class="dash-box"><h4>Score</h4><p>${scorePercentage}%</p></div>
+                <div class="dash-box"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+                <div class="dash-box"><h4>Total Time</h4><p>${totalTime}</p></div>
+                <div class="dash-box"><h4>Avg Time/Q</h4><p>${avgTimePerQuestion} sec</p></div>
+                <div class="dash-box"><h4>Speed</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+                <div class="dash-box"><h4>Efficiency</h4><p>${efficiency}</p></div>
+                <div class="dash-box"><h4>Percentile</h4><p>${percentile}</p></div>
+                <div class="dash-box"><h4>Rank</h4><p>${rank} / 1</p></div>
+                <div class="dash-box"><h4>Longest Streak</h4><p>${longestStreak} Qs</p></div>
+                <div class="dash-box"><h4>Best Section</h4><p>${bestSection}</p></div>
+                <div class="dash-box"><h4>Weak Section</h4><p>${weakSection}</p></div>
+                <div class="dash-box"><h4>Improvement</h4><p>${improvement}</p></div>
+                <div class="dash-box"><h4>Performance Level</h4><p>${performanceLevel}</p></div>
+                <div class="dash-box"><h4>Medals</h4><p>${medals}</p></div>
+                <div class="dash-box"><h4>Efficiency Score</h4><p>${efficiencyScore}</p></div>
+                <div class="dash-box"><h4>Predicted Score</h4><p>${predictedScore}%</p></div>
+                <div class="dash-box"><h4>Questions/Min</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Fastest Answer</h4><p>${fastestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Slowest Answer</h4><p>${slowestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Correct</h4><p>${avgTimeCorrect} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Wrong</h4><p>${avgTimeWrong} sec</p></div>
+                <div class="dash-box"><h4>Time Efficiency</h4><p>${timeEfficiency}</p></div>
+                <div class="dash-box"><h4>Guess Rate</h4><p>${guessRate}%</p></div>
+                <div class="dash-box"><h4>First-Half Accuracy</h4><p>${firstHalfAccuracy.toFixed(1)}%</p></div>
+            `;
+        }
+
+        // Initialize
+        document.getElementById('timerContainer').addEventListener('dblclick', function() {
+            this.classList.toggle('hidden');
+        });
+
+        // Load Google Fonts
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Tangerine&family=Allura&family=Poppins:wght@400;600&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    </script>
+</body>
+</html>
